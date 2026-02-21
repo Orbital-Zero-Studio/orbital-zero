@@ -1,3 +1,20 @@
 # Godot 4+ specific ignores
 .godot/
+
+# Android export
 /android/
+
+# Godot export templates and builds
+*.apk
+*.aab
+export_presets.cfg
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# IDE
+.vscode/
+.idea/
