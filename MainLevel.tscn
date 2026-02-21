@@ -1,6 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://cy7h3n355dtjw"]
+[gd_scene load_steps=7 format=3 uid="uid://cy7h3n355dtjx"]
 
-[ext_resource type="PackedScene" uid="uid://cnmpjeb27xqed" path="res://Player/Player.tscn" id="1_player"]
+[ext_resource type="PackedScene" uid="uid://cnmpjeb27xqed" path="res://Player/Player.tscn" id="1_a202f"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_noarx"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -21,7 +21,7 @@ size = Vector2(100, 100)
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_i5arm"]
 points = PackedVector3Array(-100, 0, -100, -100, 0, 100, 100, 0, -100, 100, 0, 100)
 
-[node name="Node3D" type="Node3D"]
+[node name="MainLevel" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_r3fl7")
@@ -30,13 +30,13 @@ environment = SubResource("Environment_r3fl7")
 transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
 shadow_enabled = true
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="Floor" type="MeshInstance3D" parent="."]
 mesh = SubResource("PlaneMesh_jka67")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
+[node name="StaticBody3D" type="StaticBody3D" parent="Floor"]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor/StaticBody3D"]
 shape = SubResource("ConvexPolygonShape3D_i5arm")
 
-[node name="Player" parent="." instance=ExtResource("1_player")]
+[node name="Player" parent="." instance=ExtResource("1_a202f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)

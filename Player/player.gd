@@ -1,6 +1,7 @@
 extends CharacterBody3D
 
 const WALK_SPEED = 1.4
+const RUN_SPEED = 4.0
 const JUMP_VELOCITY = 4.5
 const MOUSE_SENSITIVITY := 0.1
 
@@ -28,6 +29,7 @@ var current_anim: String = ""
 # Animation name slots
 var anim_idle: String = ""
 var anim_walk_fwd: String = ""
+var anim_run: String = ""
 var anim_walk_bwd: String = ""
 var anim_strafe_left: String = ""
 var anim_strafe_right: String = ""
@@ -75,6 +77,7 @@ func _discover_animations(anims: PackedStringArray) -> void:
 		var l = a.to_lower()
 		if l == "idle":          anim_idle = a
 		elif l == "walk_fwd":    anim_walk_fwd = a
+		elif l == "run_fwd" or l == "run": anim_run = a
 		elif l == "walk_bwd":    anim_walk_bwd = a
 		elif l == "walk_left":   anim_strafe_left = a
 		elif l == "walk_right":  anim_strafe_right = a
@@ -137,10 +140,12 @@ func _discover_animations(anims: PackedStringArray) -> void:
 	if anim_idle == "":
 		anim_idle = _first_match(anims, ["idle", "t-pose", "a_pose"])
 	if anim_walk_fwd == "":
-		anim_walk_fwd = _first_match(anims, ["walk", "jog", "run"])
+		anim_walk_fwd = _first_match(anims, ["walk", "jog"])
+	if anim_run == "":
+		anim_run = _first_match(anims, ["run", "sprint", "dash"])
 
-	print("Mapped -> Idle:%s  Walk_F:%s  Walk_B:%s  StrafeL:%s  StrafeR:%s  JumpStart:%s  JumpAir:%s  JumpLand:%s" % [
-		anim_idle, anim_walk_fwd, anim_walk_bwd, anim_strafe_left, anim_strafe_right, anim_jump_start, anim_jump_air, anim_jump_land])
+	print("Mapped -> Idle:%s  Walk:%s  Run:%s  JumpStart:%s" % [
+		anim_idle, anim_walk_fwd, anim_run, anim_jump_start])
 
 func _first_match(anims: PackedStringArray, keys: Array) -> String:
 	for k in keys:
@@ -156,6 +161,11 @@ func _play_anim(anim_name: String) -> void:
 	current_anim = anim_name
 
 func _pick_directional_anim(input_dir: Vector2) -> void:
+	# Run check (overrides directional walk if Alt is pressed)
+	if Input.is_key_pressed(KEY_ALT) and anim_run != "":
+		_play_anim(anim_run)
+		return
+
 	var ax = abs(input_dir.x)
 	var ay = abs(input_dir.y)
 	if ay >= ax:
@@ -227,8 +237,9 @@ func _physics_process(delta: float) -> void:
 	var direction := (transform.basis * Vector3(-input_dir.x, 0, -input_dir.y)).normalized()
 
 	if direction:
-		velocity.x = direction.x * WALK_SPEED
-		velocity.z = direction.z * WALK_SPEED
+		var speed = RUN_SPEED if Input.is_key_pressed(KEY_ALT) else WALK_SPEED
+		velocity.x = direction.x * speed
+		velocity.z = direction.z * speed
 
 		# Rotate character model to face movement direction
 		if character_model:
