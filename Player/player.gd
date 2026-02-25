@@ -21,6 +21,7 @@ var camera_rotation_y := 0.0
 var is_jumping := false
 var was_in_air := false
 var is_punching := false
+var is_rolling := false
 var is_fpp := false
 var punch_toggle := false  # false = Punch_Cross, true = Punch_Jab
 
@@ -50,19 +51,29 @@ func _physics_process(delta: float) -> void:
 		if velocity.y < 0:
 			velocity.y = 0
 
-	# Jump
-	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
-		velocity.y = JUMP_VELOCITY
-		is_jumping = true
-		anim_player.play("Jump_Start")
-
 	# Movement direction based on camera angle
 	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var cam_basis := Basis(Vector3.UP, camera_rotation_y * PI / 180.0)
 	var direction := (cam_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	
-	# Sprint Logic
+
+	# Sprint Logic (must be before roll/jump check)
 	var is_sprinting = Input.is_key_pressed(KEY_SHIFT) and input_dir.y < 0
+
+	# Roll: W + Shift + Space (sprinting + jump key) while on floor
+	if Input.is_action_just_pressed("ui_accept") and is_on_floor() and is_sprinting and not is_rolling:
+		is_rolling = true
+		is_punching = false
+		anim_player.speed_scale = 1.0
+		anim_player.play("Roll")
+	# Normal Jump (only when not sprinting and not already rolling)
+	elif Input.is_action_just_pressed("ui_accept") and is_on_floor() and not is_rolling:
+		velocity.y = JUMP_VELOCITY
+		is_jumping = true
+		anim_player.play("Jump_Start")
+
+	# Clear roll when animation finishes
+	if is_rolling and not anim_player.is_playing():
+		is_rolling = false
 	# Crouch Logic
 	var is_crouching = Input.is_key_pressed(KEY_C)
 	
@@ -92,6 +103,10 @@ func _physics_process(delta: float) -> void:
 	if is_punching and not anim_player.is_playing():
 		is_punching = false
 		anim_player.speed_scale = 1.0
+
+	# While rolling, skip all other animation logic
+	if is_rolling:
+		return
 
 	# Animations
 	if is_on_floor():
