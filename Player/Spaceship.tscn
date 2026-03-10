@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://ds0pq8lb1eu5"]
+
+[ext_resource type="Script" uid="uid://b47dt4lx3vkg6" path="res://Player/spaceship.gd" id="1_spgd"]
+[ext_resource type="PackedScene" uid="uid://s58ynr1y8vne" path="res://Player/spaceship part 1.blend" id="2_spmodel"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_body"]
+size = Vector3(3, 1.2, 6)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_zone"]
+radius = 4.663
+
+[node name="Spaceship" type="CharacterBody3D" unique_id=1226906610]
+script = ExtResource("1_spgd")
+
+[node name="ShipModel" parent="." unique_id=1971117421 instance=ExtResource("2_spmodel")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=31260191]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35.110382, 0.6, 0)
+shape = SubResource("BoxShape3D_body")
+
+[node name="EnterZone" type="Area3D" parent="." unique_id=1486695615]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.745388, 1.8740177, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EnterZone" unique_id=1367858815]
+shape = SubResource("SphereShape3D_zone")
+
+[node name="Camera3D" type="Camera3D" parent="EnterZone" unique_id=1651710713]
+transform = Transform3D(-0.058110278, 0.66412437, -0.7453604, -0.006865198, 0.74633855, 0.6655311, 0.9982867, 0.043791242, -0.038810592, -9.798321, 11.537191, -2.4561577)
