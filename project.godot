@@ -11,17 +11,9 @@ config_version=5
 [application]
 
 config/name="Player"
-run/main_scene="res://node_3d.tscn"
-config/features=PackedStringArray("4.3", "Mobile")
+run/main_scene="uid://cy7h3n355dtjw"
+config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
-
-[dotnet]
-
-project/assembly_name="Player"
-
-[filesystem]
-
-import/blender/enabled=false
 
 [input]
 

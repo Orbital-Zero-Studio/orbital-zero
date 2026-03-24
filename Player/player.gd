@@ -22,13 +22,12 @@ var is_jumping := false
 var was_in_air := false
 var is_punching := false
 var is_rolling := false
-var is_fpp := false
 var punch_toggle := false  # false = Punch_Cross, true = Punch_Jab
+var in_spaceship := false  # True while player is piloting the spaceship
 
 @export var camera : Camera3D
 @onready var anim_player: AnimationPlayer = $UAL1_Standard/AnimationPlayer
 @onready var model: Node3D = $UAL1_Standard
-@onready var fpp_camera: Camera3D = $FPPCamera
 
 # Camera follow
 const CAMERA_OFFSET = Vector3(0.0, 2.5, 4.0)
@@ -39,9 +38,32 @@ func _ready() -> void:
 	# Detach TPP camera so it can follow smoothly
 	if camera:
 		camera.set_as_top_level(true)
-	# FPP camera stays parented to player (moves with it automatically)
-	fpp_camera.current = false
 	camera.current = true
+
+# ─── Spaceship Enter / Exit API ───────────────────────────────────────────────
+
+# Returns current camera angles so the spaceship camera can start from the
+# same orientation (avoids a jarring snap on entry).
+func on_enter_spaceship() -> Vector2:
+	in_spaceship = true
+	model.visible = false
+	# Freeze the character so it doesn't drift or fall while piloting
+	set_physics_process(false)
+	# Deactivate our own cameras so spaceship camera can take over
+	camera.current = false
+	return Vector2(camera_rotation_y, camera_rotation_x)
+
+
+func on_exit_spaceship(exit_position: Vector3) -> void:
+	in_spaceship = false
+	model.visible = true
+	set_physics_process(true)
+	global_position = exit_position
+	velocity = Vector3.ZERO
+	# Restore player camera
+	camera.current = true
+
+# ─── Physics ────────────────────────────────────────────────────────────────────
 
 func _physics_process(delta: float) -> void:
 	# Gravity
@@ -153,13 +175,6 @@ func _physics_process(delta: float) -> void:
 			anim_player.play("Jump")
 
 func _update_camera(delta: float) -> void:
-	if is_fpp:
-		# FPP: rotate the camera node directly using mouse look
-		fpp_camera.rotation.x = deg_to_rad(camera_rotation_x)
-		# Rotate the whole player body on Y so movement matches look direction
-		rotation.y = deg_to_rad(-camera_rotation_y)
-		return
-
 	if not camera:
 		return
 
@@ -177,6 +192,12 @@ func _update_camera(delta: float) -> void:
 	camera.look_at(pivot, Vector3.UP)
 
 func _unhandled_input(event: InputEvent) -> void:
+	# While in spaceship, only allow Escape to free the cursor — nothing else
+	if in_spaceship:
+		if event.is_action_pressed("ui_cancel"):
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		return
+
 	if event.is_action_pressed("ui_cancel"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
@@ -193,23 +214,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		camera_rotation_y -= event.relative.x * mouse_sensitivity
 		camera_rotation_x -= event.relative.y * mouse_sensitivity
-		# Tighter vertical clamp in FPP for realistic feel
-		var pitch_limit = 80.0 if is_fpp else 60.0
-		camera_rotation_x = clamp(camera_rotation_x, -pitch_limit, pitch_limit)
-
-	# Toggle FPP / TPP with V key
-	if event is InputEventKey and event.keycode == KEY_V and event.pressed and not event.echo:
-		is_fpp = !is_fpp
-		if is_fpp:
-			# Switch to first-person
-			camera.current = false
-			fpp_camera.current = true
-			model.visible = false   # Hide body — simulates looking through your own eyes
-		else:
-			# Switch back to third-person
-			fpp_camera.current = false
-			camera.current = true
-			model.visible = true
+		camera_rotation_x = clamp(camera_rotation_x, -60.0, 60.0)
 
 	# Punch on Ctrl press OR left mouse click (alternates Punch_Cross / Punch_Jab)
 	if event is InputEventKey and event.keycode == KEY_CTRL and event.pressed and not event.echo:

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://s58ynr1y8vne"
-path="res://.godot/imported/spaceship part 1.blend-f602ebb81763a83ad4c0ae7baeaf1b2f.scn"
+uid="uid://c4goa26g3f5x5"
+path="res://.godot/imported/exo planet part 1.blend-d848f80274f554852a4a27f71a8c4390.scn"
 
 [deps]
 
-source_file="res://Player/spaceship part 1.blend"
-dest_files=["res://.godot/imported/spaceship part 1.blend-f602ebb81763a83ad4c0ae7baeaf1b2f.scn"]
+source_file="res://Player/exo planet part 1.blend"
+dest_files=["res://.godot/imported/exo planet part 1.blend-d848f80274f554852a4a27f71a8c4390.scn"]
 
 [params]
 
@@ -41,7 +41,7 @@ _subresources={}
 blender/nodes/visible=0
 blender/nodes/active_collection_only=false
 blender/nodes/punctual_lights=true
-blender/nodes/cameras=false
+blender/nodes/cameras=true
 blender/nodes/custom_properties=true
 blender/nodes/modifiers=1
 blender/meshes/colors=false
